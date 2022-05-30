@@ -1,1 +1,31 @@
 {% extends 'main/base.html' %}
+{% block content %}
+<a href="{% url 'localizacao.novo' %}">Novo</a>
+<table>
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Ativa</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for localizacao in object_list %}
+            <tr>
+                <td>{{ localizacao.nome }}</td>
+                <td>{{ localizacao.latitude }}</td>
+                <td>{{ localizacao.longitude }}</td>
+                <td>
+                    {% if localizacao.ativa %}
+                    Sim
+                    {% else %}
+                    Não
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}

@@ -11,5 +11,7 @@
         <li><a href="{% url 'home' %}">Home</a></li>
         <li><a href="{% url 'localizacao.index' %}">Localizacoes</a></li>
     </ul>
+    {% block content %}
+    {% endblock content %}
 </body>
 </html>
