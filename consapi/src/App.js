@@ -1,25 +1,74 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import api from './api';
+import L from 'leaflet';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+let map;
+
+function success(pos){
+
+  console.log(pos.coords.latitude, pos.coords.longitude);
+
+  if (map === undefined) {
+      map = L.map('mapid').setView([pos.coords.latitude, pos.coords.longitude], 3);
+  } else {
+      map.remove();
+      map = L.map('mapid').setView([pos.coords.latitude, pos.coords.longitude], 3);
+  }
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map)
+      .bindPopup('Eu estou aqui!')
+      .openPopup();
 }
+
+function error(err){
+  console.log(err);
+}
+
+class App extends Component{
+
+  state = {
+    artigos: [],
+  }
+
+  async componentDidMount(){
+    const response = await api.get('/localizacoes');
+    //console.log(response.data)
+    this.setState({artigos: response.data});
+    // success({ coords: {
+    //   latitude: await this.state.artigos[0].latitude,
+    //   longitude: await this.state.artigos[0].longitude, 
+    //   }})
+    await Promise.all(this.state.artigos.map((artigo, index) => {
+      if (index === 0){
+        success({ coords: {
+          latitude: artigo.latitude,
+          longitude: artigo.longitude,
+        }})
+      } else {
+        L.marker([artigo.latitude, artigo.longitude]).addTo(map)
+        .bindPopup(artigo.nome)
+        .openPopup();
+      }
+      }))
+  }
+
+
+  render(){
+
+    const {artigos} = this.state;
+    console.log(artigos);
+
+    return(
+      <div>
+        <h1>Localizacoes salvas</h1>
+          <div id="mapid"></div>
+      </div>
+    );
+  };
+};
 
 export default App;
